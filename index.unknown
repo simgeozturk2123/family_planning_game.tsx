@@ -1,0 +1,493 @@
+<p>import React, 
+{
+ useState, useEffect 
+}
+ from 'react';<br>import 
+{
+ Heart, Star, Award, Briefcase, Users, Clock, Zap, Target 
+}
+ from 'lucide-react';</p>
+<p>export default function FamilyPlanningGame() 
+{
+<br>&nbsp;const [gameState, setGameState] = useState('intro');<br>&nbsp;const [playerName, setPlayerName] = useState('');<br>&nbsp;const [currentDay, setCurrentDay] = useState(1);<br>&nbsp;const [energy, setEnergy] = useState(100);<br>&nbsp;const [reputation, setReputation] = useState(0);<br>&nbsp;const [coins, setCoins] = useState(0);<br>&nbsp;const [inventory, setInventory] = useState([]);<br>&nbsp;const [currentPatient, setCurrentPatient] = useState(null);<br>&nbsp;const [dialogueStep, setDialogueStep] = useState(0);<br>&nbsp;const [badges, setBadges] = useState([]);<br>&nbsp;const [notification, setNotification] = useState(null);</p>
+<p>&nbsp;const patients = [<br>&nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp;id: 1,<br>&nbsp; &nbsp; &nbsp;name: "Ayşe &amp; Mehmet",<br>&nbsp; &nbsp; &nbsp;avatar: "👫",<br>&nbsp; &nbsp; &nbsp;mood: "😊",<br>&nbsp; &nbsp; &nbsp;urgency: "normal",<br>&nbsp; &nbsp; &nbsp;coins: 150,<br>&nbsp; &nbsp; &nbsp;background: "bg-gradient-to-br from-pink-100 to-purple-100",<br>&nbsp; &nbsp; &nbsp;story: "Yeni evli bir çift. Rüya gibi bir balayı geçirdiler ve şimdi kariyerlerine odaklanmak istiyorlar.",<br>&nbsp; &nbsp; &nbsp;dialogue: [<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Merhaba hemşire! Biz yeni evlendik ve 2-3 yıl bebek sahibi olmayı ertelemek istiyoruz.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "🎉 Önce tebrikler! Size yardımcı olmaktan mutluluk duyarım.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Teşekkür ederiz! Çok heyecanlıyız ama biraz da karışık durumdayız.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 20<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Tamam, hangi yöntemi istiyorsunuz?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Aslında... bilmiyoruz. Bu yüzden size geldik.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 0<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Düzenli bir yaşamımız var, her gün ilaç almayı unutmayız. Sizce ne önerirsiniz?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "💊 Kombine oral kontraseptif (hap) sizin için ideal olabilir!",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Harika! Peki nasıl kullanacağız?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 30<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "🔪 Kalıcı yöntem olan tüp ligasyonu düşünün.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Ama biz gelecekte çocuk istiyoruz...",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: -10<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Her gün aynı saatte mi almalıyız? Ya unutursak?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "⏰ Evet, her gün aynı saatte alın. Telefon alarmı kurun. 12 saatten fazla gecikme olursa ek koruma kullanın.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Anladık! Çok net anlattınız, teşekkürler!",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 30,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;badge: "İletişim Uzmanı"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Önemli değil, istediğiniz zaman alabilirsiniz.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Hmm, emin misiniz? İnternette farklı okumuştuk...",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: -20<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp;id: 2,<br>&nbsp; &nbsp; &nbsp;name: "Zeynep",<br>&nbsp; &nbsp; &nbsp;avatar: "🤱",<br>&nbsp; &nbsp; &nbsp;mood: "😰",<br>&nbsp; &nbsp; &nbsp;urgency: "high",<br>&nbsp; &nbsp; &nbsp;coins: 200,<br>&nbsp; &nbsp; &nbsp;background: "bg-gradient-to-br from-blue-100 to-green-100",<br>&nbsp; &nbsp; &nbsp;story: "3 aylık bebeğini emziren genç bir anne. Yorgun ama bebeğine çok özen gösteriyor.",<br>&nbsp; &nbsp; &nbsp;dialogue: [<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Hemşire hanım, çok yorgunum... 3 aylık bebeğim var ve emziriyorum. Tekrar hamile kalmaktan korkuyorum.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "❤️ Anladım, hem sizi hem bebeğinizi düşünerek bir çözüm bulalım.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Çok teşekkür ederim... Bebeğime zarar vermeyecek bir şey olmalı.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 20<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Zaten emziriyorsunuz, hamile kalamazsınız.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Gerçekten mi? Ama komşum emzirirken hamile kaldı...",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: -15<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Doğum kontrol hapı alabilir miyim? Anne sütümü etkiler mi?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "🍼 Mini pill (sadece progesteron) alabilirsiniz. Bebek için güvenli!",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Ah ne güzel! Nasıl kullanmalıyım?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 30<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Kombine hap (östrojen+progesteron) kullanın.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Ama östrojen süt üretimini azaltmaz mı?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: -10<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "LAM diye bir şey duydum, o nedir?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "📋 LAM: Bebek 6 aydan küçük, SADECE anne sütü, adet görmediniz - bu 3'ü varsa %98 korur!",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Vay be, bilmiyordum! Çok bilgilendirici oldu.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 30,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;badge: "Bilgi Hazinesi"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Emzirme tek başına yeterli korumadır.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Peki ya adetim gelirse? Hala korur mu?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: -20<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp;id: 3,<br>&nbsp; &nbsp; &nbsp;name: "Elif",<br>&nbsp; &nbsp; &nbsp;avatar: "👧",<br>&nbsp; &nbsp; &nbsp;mood: "😳",<br>&nbsp; &nbsp; &nbsp;urgency: "high",<br>&nbsp; &nbsp; &nbsp;coins: 180,<br>&nbsp; &nbsp; &nbsp;background: "bg-gradient-to-br from-yellow-100 to-orange-100",<br>&nbsp; &nbsp; &nbsp;story: "18 yaşında üniversite öğrencisi. Utangaç ama sorularına cevap bulmak istiyor.",<br>&nbsp; &nbsp; &nbsp;dialogue: [<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "*utangaç* Merhaba... Arkadaşım gönderdi beni. Korunma yöntemleri hakkında bilgi almak istiyorum.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "😊 Hoş geldin Elif. Burası güvenli bir alan, sorularını rahatça sorabilirsin. Gizliliğine saygı duyuyorum.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "*rahatlar* Teşekkür ederim... Biraz gerginдім.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 25<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Ailene söyledin mi geldiğini?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "*paniğe kapılır* Hayır! Onlara söyleyecek misiniz?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: -20<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Sadece hamile kalmamak mı yeterli? Başka nelerden korunmalıyım?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "🛡️ Hem gebelik hem de cinsel yolla bulaşan enfeksiyonlardan (CYBE) korunman önemli!",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Anladım... Peki her ikisinden birden nasıl korunurum?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 25<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Sadece hamilelik önemli, gerisini düşünme.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Ama internette başka şeyler okudum...",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: -15<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "En iyi yöntem nedir benim için?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;choices: [<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "🎯 Çift koruma: Kondom (CYBE'den korur) + doğum kontrol hapı (gebeliği önler). İkisi birlikte en güvenli!",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: true,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Vay! Bunu hiç düşünmemiştim. Çok mantıklı!",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: 35,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;badge: "Koruyucu Melek"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+&nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;text: "Geri çekme yöntemi yeterlidir.",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;correct: false,<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;response: "Arkadaşım öyle yaptı ve hamileydi... Başka seçenek yok mu?",<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;points: -25<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp; &nbsp;]<br>&nbsp; &nbsp;
+}
+<br>&nbsp;];</p>
+<p>&nbsp;const shopItems = [<br>&nbsp; &nbsp;
+{
+ id: 1, name: "☕ Kahve", cost: 30, energy: 20, icon: "☕" 
+}
+,<br>&nbsp; &nbsp;
+{
+ id: 2, name: "📚 Ders Kitabı", cost: 100, reputation: 50, icon: "📚" 
+}
+,<br>&nbsp; &nbsp;
+{
+ id: 3, name: "🎧 Müzik", cost: 50, energy: 30, icon: "🎧" 
+}
+,<br>&nbsp; &nbsp;
+{
+ id: 4, name: "💪 Spor", cost: 40, energy: 25, icon: "💪" 
+}
+<br>&nbsp;];</p>
+<p>&nbsp;useEffect(() =&gt; 
+{
+<br>&nbsp; &nbsp;if (notification) 
+{
+<br>&nbsp; &nbsp; &nbsp;const timer = setTimeout(() =&gt; setNotification(null), 3000);<br>&nbsp; &nbsp; &nbsp;return () =&gt; clearTimeout(timer);<br>&nbsp; &nbsp;
+}
+<br>&nbsp;
+}
+, [notification]);</p>
+<p>&nbsp;const showNotification = (message, type = 'success') =&gt; 
+{
+<br>&nbsp; &nbsp;setNotification(
+{
+ message, type 
+}
+);<br>&nbsp;
+}
+;</p>
+<p>&nbsp;const startPatientVisit = (patient) =&gt; 
+{
+<br>&nbsp; &nbsp;if (energy &lt; 20) 
+{
+<br>&nbsp; &nbsp; &nbsp;showNotification('😴 Çok yorgunsun! Önce dinlen.', 'error');<br>&nbsp; &nbsp; &nbsp;return;<br>&nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp;setCurrentPatient(patient);<br>&nbsp; &nbsp;setDialogueStep(0);<br>&nbsp; &nbsp;setGameState('consultation');<br>&nbsp; &nbsp;setEnergy(energy - 20);<br>&nbsp;
+}
+;</p>
+<p>&nbsp;const handleChoice = (choice) =&gt; 
+{
+<br>&nbsp; &nbsp;const currentDialogue = currentPatient.dialogue[dialogueStep];<br>&nbsp; &nbsp;<br>&nbsp; &nbsp;if (choice.correct) 
+{
+<br>&nbsp; &nbsp; &nbsp;setReputation(reputation + choice.points);<br>&nbsp; &nbsp; &nbsp;showNotification(`+$
+{
+choice.points
+}
+ İtibar! 🌟`, 'success');<br>&nbsp; &nbsp; &nbsp;<br>&nbsp; &nbsp; &nbsp;if (choice.badge &amp;&amp; !badges.includes(choice.badge)) 
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp;setBadges([...badges, choice.badge]);<br>&nbsp; &nbsp; &nbsp; &nbsp;showNotification(`🏆 Yeni Rozet: $
+{
+choice.badge
+}
+`, 'badge');<br>&nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp;
+}
+ else 
+{
+<br>&nbsp; &nbsp; &nbsp;if (choice.points &lt; 0) 
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp;setReputation(Math.max(0, reputation + choice.points));<br>&nbsp; &nbsp; &nbsp; &nbsp;showNotification(`$
+{
+choice.points
+}
+ İtibar 😕`, 'error');<br>&nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp;
+}
+</p>
+<p>&nbsp; &nbsp;setTimeout(() =&gt; 
+{
+<br>&nbsp; &nbsp; &nbsp;if (dialogueStep &lt; currentPatient.dialogue.length - 1) 
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp;setDialogueStep(dialogueStep + 1);<br>&nbsp; &nbsp; &nbsp;
+}
+ else 
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp;setCoins(coins + currentPatient.coins);<br>&nbsp; &nbsp; &nbsp; &nbsp;showNotification(`Tamamlandı! +$
+{
+currentPatient.coins
+}
+ 💰`, 'success');<br>&nbsp; &nbsp; &nbsp; &nbsp;setCurrentDay(currentDay + 1);<br>&nbsp; &nbsp; &nbsp; &nbsp;setGameState('hospital');<br>&nbsp; &nbsp; &nbsp; &nbsp;setCurrentPatient(null);<br>&nbsp; &nbsp; &nbsp;
+}
+<br>&nbsp; &nbsp;
+}
+, 1500);<br>&nbsp;
+}
+;</p>
+<p>&nbsp;const buyItem = (item) =&gt; 
+{
+<br>&nbsp; &nbsp;if (coins &gt;= item.cost) 
+{
+<br>&nbsp; &nbsp; &nbsp;setCoins(coins - item.cost);<br>&nbsp; &nbsp; &nbsp;if (item.energy) setEnergy(Math.min(100, energy + item.energy));<br>&nbsp; &nbsp; &nbsp;if (item.reputation) setReputation(reputation + item.reputation);<br>&nbsp; &nbsp; &nbsp;setInventory([...inventory, item.name]);<br>&nbsp; &nbsp; &nbsp;showNotification(`$
+{
+item.icon
+}
+ Satın alındı!`, 'success');<br>&nbsp; &nbsp;
+}
+ else 
+{
+<br>&nbsp; &nbsp; &nbsp;showNotification('Yeterli paran yok! 💸', 'error');<br>&nbsp; &nbsp;
+}
+<br>&nbsp;
+}
+;</p>
+<p>&nbsp;if (gameState === 'intro') 
+{
+<br>&nbsp; &nbsp;return (<br>&nbsp; &nbsp; &nbsp;&lt;div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center p-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-12 text-center animate-fadeIn"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-8xl mb-6"&gt;🏥&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Hemşire Akademisi<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/h1&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p className="text-xl text-gray-600 mb-8"&gt;Aile Planlaması Danışmanlığı Macerası&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 mb-8"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;h2 className="text-2xl font-bold text-gray-800 mb-4"&gt;🎮 Oyun Nasıl Oynanır?&lt;/h2&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-left space-y-3 text-gray-700"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p&gt;✨ Hastanede farklı hastalarla konuş&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p&gt;💬 Doğru danışmanlık yap ve itibar kazan&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p&gt;⚡ Enerjini yönet, dinlen ve alışveriş yap&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p&gt;🏆 Rozetler topla ve uzman hemşire ol!&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;input<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;type="text"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;placeholder="Hemşire adını gir..."<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;value=
+{
+playerName
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;onChange=
+{
+(e) =&gt; setPlayerName(e.target.value)
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;className="w-full px-6 py-4 text-lg border-3 border-purple-300 rounded-xl mb-6 focus:border-purple-500 focus:outline-none"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;/&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;button<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;onClick=
+{
+() =&gt; playerName &amp;&amp; setGameState('hospital')
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;disabled=
+{
+!playerName
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;🚀 Maceraya Başla!<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/button&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp;);<br>&nbsp;
+}
+</p>
+<p>&nbsp;if (gameState === 'hospital') 
+{
+<br>&nbsp; &nbsp;return (<br>&nbsp; &nbsp; &nbsp;&lt;div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp;
+{
+notification &amp;&amp; (<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className=
+{
+`fixed top-6 right-6 px-6 py-4 rounded-xl shadow-2xl z-50 animate-slideIn $
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;notification.type === 'success' ? 'bg-green-500 text-white' :<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;notification.type === 'badge' ? 'bg-yellow-500 text-white' :<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;'bg-red-500 text-white'<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+`
+}
+&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+notification.message
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp;)
+}
+</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="max-w-7xl mx-auto"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-white rounded-3xl shadow-2xl p-6 mb-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center justify-between"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;h1 className="text-3xl font-bold text-gray-800"&gt;Hemşire 
+{
+playerName
+}
+&lt;/h1&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p className="text-gray-600"&gt;Gün 
+{
+currentDay
+}
+ • 
+{
+badges.length
+}
+ Rozet&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex gap-4"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-gradient-to-br from-red-100 to-pink-100 px-6 py-3 rounded-xl"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center gap-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;Zap className="text-red-500" size=
+{
+20
+}
+ /&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-sm text-gray-600"&gt;Enerji&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-2xl font-bold text-red-600"&gt;
+{
+energy
+}
+/100&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-gradient-to-br from-yellow-100 to-orange-100 px-6 py-3 rounded-xl"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center gap-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;Star className="text-yellow-500" size=
+{
+20
+}
+ /&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-sm text-gray-600"&gt;İtibar&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-2xl font-bold text-yellow-600"&gt;
+{
+reputation
+}
+&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-gradient-to-br from-green-100 to-emerald-100 px-6 py-3 rounded-xl"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center gap-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="text-2xl"&gt;💰&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-sm text-gray-600"&gt;Para&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-2xl font-bold text-green-600"&gt;
+{
+coins
+}
+&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="grid md:grid-cols-3 gap-6 mb-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="md:col-span-2 bg-white rounded-3xl shadow-2xl p-8"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;Users className="text-blue-600" /&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Bekleme Odası<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/h2&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="space-y-4"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+patients.map(patient =&gt; (<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div key=
+{
+patient.id
+}
+ className=
+{
+`$
+{
+patient.background
+}
+ rounded-2xl p-6 border-2 border-opacity-50 hover:border-opacity-100 transition-all hover:scale-102`
+}
+&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center justify-between"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center gap-4"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-6xl"&gt;
+{
+patient.avatar
+}
+&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;h3 className="text-xl font-bold text-gray-800"&gt;
+{
+patient.name
+}
+&lt;/h3&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p className="text-sm text-gray-600 mb-2"&gt;
+{
+patient.story
+}
+&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center gap-3"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="text-2xl"&gt;
+{
+patient.mood
+}
+&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className=
+{
+`px-3 py-1 rounded-full text-xs font-bold $
+{
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;patient.urgency === 'high' ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+}
+`
+}
+&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+patient.urgency === 'high' ? '🔥 Acil' : '✓ Normal'
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="text-sm font-semibold text-green-700"&gt;+
+{
+patient.coins
+}
+ 💰&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;button<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;onClick=
+{
+() =&gt; startPatientVisit(patient)
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;disabled=
+{
+energy &lt; 20
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Görüş<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/button&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;))
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="space-y-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-white rounded-3xl shadow-2xl p-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;Briefcase className="text-purple-600" /&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Mağaza<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/h2&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="space-y-3"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+shopItems.map(item =&gt; (<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div key=
+{
+item.id
+}
+ className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center justify-between mb-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="font-bold text-gray-800"&gt;
+{
+item.name
+}
+&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="text-2xl"&gt;
+{
+item.icon
+}
+&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center justify-between"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="text-sm text-gray-600"&gt;
+{
+item.cost
+}
+ 💰&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;button<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;onClick=
+{
+() =&gt; buyItem(item)
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;disabled=
+{
+coins &lt; item.cost
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Satın Al<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/button&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;))
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+badges.length &gt; 0 &amp;&amp; (<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-white rounded-3xl shadow-2xl p-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;Award className="text-yellow-600" /&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Rozetlerim<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/h2&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="space-y-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+badges.map((badge, idx) =&gt; (<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div key=
+{
+idx
+}
+ className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-3 flex items-center gap-3"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="text-2xl"&gt;🏆&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="font-semibold text-gray-800"&gt;
+{
+badge
+}
+&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;))
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;)
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp;);<br>&nbsp;
+}
+</p>
+<p>&nbsp;if (gameState === 'consultation') 
+{
+<br>&nbsp; &nbsp;const dialogue = currentPatient.dialogue[dialogueStep];<br>&nbsp; &nbsp;<br>&nbsp; &nbsp;return (<br>&nbsp; &nbsp; &nbsp;&lt;div className=
+{
+`min-h-screen $
+{
+currentPatient.background
+}
+ p-6 flex items-center justify-center`
+}
+&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="max-w-4xl w-full"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-white rounded-3xl shadow-2xl p-8 mb-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center gap-4 mb-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="text-7xl"&gt;
+{
+currentPatient.avatar
+}
+&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;h2 className="text-3xl font-bold text-gray-800"&gt;
+{
+currentPatient.name
+}
+&lt;/h2&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p className="text-gray-600"&gt;Muayene Odası • Adım 
+{
+dialogueStep + 1
+}
+/
+{
+currentPatient.dialogue.length
+}
+&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-gray-100 rounded-2xl p-6 mb-6"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p className="text-lg text-gray-800 leading-relaxed"&gt;
+{
+dialogue.text
+}
+&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="space-y-3"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+{
+dialogue.choices.map((choice, idx) =&gt; (<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;button<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;key=
+{
+idx
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;onClick=
+{
+() =&gt; handleChoice(choice)
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;className="w-full p-6 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 rounded-2xl text-left transition-all hover:scale-102 border-2 border-transparent hover:border-blue-400"<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;p className="text-lg text-gray-800"&gt;
+{
+choice.text
+}
+&lt;/p&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/button&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;))
+}
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;</p>
+<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex gap-4 justify-center"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-white px-6 py-3 rounded-xl shadow-lg"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center gap-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;Clock className="text-blue-500" size=
+{
+20
+}
+ /&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="font-semibold text-gray-700"&gt;Gün 
+{
+currentDay
+}
+&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="bg-white px-6 py-3 rounded-xl shadow-lg"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;div className="flex items-center gap-2"&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;Star className="text-yellow-500" size=
+{
+20
+}
+ /&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;span className="font-semibold text-gray-700"&gt;
+{
+reputation
+}
+ İtibar&lt;/span&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp; &nbsp;&lt;/div&gt;<br>&nbsp; &nbsp;);<br>&nbsp;
+}
+<br>
+}
+</p>
